@@ -1,6 +1,6 @@
 'use client'
 
-import { isDataValid } from '@/utils'
+import { isDataValid, regroupItems } from '@/utils'
 import { useState } from 'react'
 
 const Edit = () => {
@@ -19,19 +19,26 @@ const Edit = () => {
         Paste Village Data
       </button>
 
-      {isDataValid(clipboardContent) ? (
-        <div className="mx-2 mb-4 rounded-sm bg-green-200 p-4">
-          Data is valid!
-        </div>
-      ) : (
-        <div className="mx-2 mb-4 rounded-sm bg-red-200 p-4">
-          Data is invalid!
-        </div>
-      )}
+      {clipboardContent &&
+        (isDataValid(clipboardContent) ? (
+          <>
+            <div className="mx-2 mb-4 rounded-sm bg-green-200 p-4">
+              Data is valid!
+            </div>
 
-      <pre className="mx-2 min-h-40 rounded-sm bg-gray-200 p-4">
-        {clipboardContent}
-      </pre>
+            <pre className="mx-2 rounded-sm bg-gray-200 p-4">
+              {JSON.stringify(
+                regroupItems(JSON.parse(clipboardContent).buildings),
+                null,
+                2,
+              )}
+            </pre>
+          </>
+        ) : (
+          <div className="mx-2 mb-4 rounded-sm bg-red-200 p-4">
+            Data is invalid!
+          </div>
+        ))}
     </div>
   )
 }
