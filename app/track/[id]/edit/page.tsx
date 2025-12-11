@@ -1,48 +1,47 @@
 'use client'
 
-import ItemsEditor from '@/components/ItemsEditor'
 import { isDataValid, regroupItems } from '@/utils'
-import { useState } from 'react'
+
+import data from '@/data.json'
+import useUserData from '@/hooks/useUserData'
+import ItemsEditor from '@/components/ItemsEditor'
+import { useEffect } from 'react'
 
 const Edit = () => {
-  const [clipboardContent, setClipboardContent] = useState<string>('')
+  const { userData, setUserData } = useUserData()
+  const isValid = isDataValid(JSON.stringify(data))
+
+  // Convert game data to userdata format
+  useEffect(() => {
+    if (!isValid) return
+
+    setUserData({
+      homeBuildings: regroupItems(data.buildings),
+      homeTraps: regroupItems(data.traps),
+      homeTroops: regroupItems(data.units),
+      homeSiegeMachines: regroupItems(data.siege_machines),
+      homeHeroes: regroupItems(data.heroes),
+      homeSpells: regroupItems(data.spells),
+      homePets: regroupItems(data.pets),
+      homeHelpers: regroupItems(data.helpers),
+      builderBaseBuildings: regroupItems(data.buildings2),
+      builderBaseTraps: regroupItems(data.traps2),
+      builderBaseTroops: regroupItems(data.units2),
+      builderBaseHeroes: regroupItems(data.heroes2),
+    })
+  }, [isValid])
+
+  if (!isValid) {
+    return <div className="m-2 rounded-sm bg-red-200 p-4">Data is invalid!</div>
+  }
+
+  if (!userData) {
+    return <div className="m-2">Loading...</div>
+  }
 
   return (
-    <div className="m-4">
-      <button
-        className="mb-2 cursor-pointer rounded-md bg-lime-600 p-4 text-white"
-        onClick={() => {
-          navigator.clipboard
-            .readText()
-            .then((content) => setClipboardContent(content))
-        }}
-      >
-        Paste Village Data
-      </button>
-
-      {clipboardContent &&
-        (isDataValid(clipboardContent) ? (
-          <>
-            <div className="mb-2 rounded-sm bg-green-200 p-4">
-              Data is valid!
-            </div>
-
-            <ItemsEditor
-              items={regroupItems(JSON.parse(clipboardContent).buildings)}
-            />
-            {/* <pre className="mx-2 rounded-sm bg-gray-200 p-4">
-              {JSON.stringify(
-                regroupItems(JSON.parse(clipboardContent).buildings),
-                null,
-                2,
-              )}
-            </pre> */}
-          </>
-        ) : (
-          <div className="mx-2 mb-4 rounded-sm bg-red-200 p-4">
-            Data is invalid!
-          </div>
-        ))}
+    <div className="m-2">
+      <ItemsEditor items={userData.homeHeroes} />
     </div>
   )
 }
